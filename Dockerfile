@@ -1,6 +1,6 @@
 FROM python:3.9
 
-RUN mkdir usr/src/account-back/
+RUN mkdir /usr/src/account-back/
 
 WORKDIR /usr/src/account-back/
 
@@ -12,3 +12,6 @@ RUN pip install --upgrade pip &&\
 RUN apt-get update &&\
     apt-get install sudo &&\
     sudo apt-get install sqlite3
+
+WORKDIR ./django_app
+# CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
