@@ -13,3 +13,7 @@ mysql-data/
 
 # 중요 키 또는 환경 변수
 account-back/A/secret_key.py
+
+# 불필요 캐시
+account-back/A/__pycache__/
+account-back/accounts/__pycache__/
