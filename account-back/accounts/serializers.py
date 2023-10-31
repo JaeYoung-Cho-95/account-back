@@ -7,9 +7,5 @@ User = get_user_model()
 class SignUpSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        field = [
-            "pk",
-            "username",
-            
-            ]
+        fields = ["pk","username", "password"]
     
