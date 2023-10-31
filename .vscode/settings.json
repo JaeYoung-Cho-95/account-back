@@ -1,6 +1,0 @@
-{
-    "python.analysis.indexing": true,
-    "python.analysis.packageIndexDepths":[["django", 5, true]],
-    "python.analysis.packageIndexDepths":[["Django", 5, true]],
-    "python.analysis.packageIndexDepths":[["rest_framework", 5, true]]
-}

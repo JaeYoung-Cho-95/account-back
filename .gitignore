@@ -1,12 +1,12 @@
 # 가상환경 폴더
-./.venv/*
+.venv/
 
 # vscode 설정 파일
-./.vscode/*
+.vscode/
 
 # DB
-./media/*
-./mysql-data/*
+media/
+mysql-data/
 
 # 중요 키 또는 환경 변수
-./account-back/A/secret_key.py
+account-back/A/secret_key.py
