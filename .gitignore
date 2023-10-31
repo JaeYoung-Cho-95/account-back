@@ -1,0 +1,8 @@
+# 가상환경 폴더
+myvenv/
+
+# vscode 설정 파일
+.vscode/
+
+# 저장되는 미디어 파일
+media/
