@@ -12,7 +12,7 @@ media/
 mysql-data/
 
 # 중요 키 또는 환경 변수
-account-back/A/secret_key.py
+account-back/A/secret.py
 
 # 불필요 캐시 및 파일
 account-back/A/__pycache__/
