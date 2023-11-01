@@ -6,6 +6,7 @@
 
 # docker 환경변수
 envs/
+docker-compose.yml
 
 # DB
 media/
