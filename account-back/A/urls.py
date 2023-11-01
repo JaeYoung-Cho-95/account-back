@@ -15,13 +15,19 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from django.conf.urls.static import static
 from django.conf import settings
+from django.conf.urls.static import static
+
 
 urlpatterns = [
-    path("accounts/", include("accounts.urls")),
     path('admin/', admin.site.urls),
+    # path('accounts/', include('dj_rest_auth.urls')),
+    # path('accounts/', include('dj_rest_auth.registration.urls')),
+    # path('accounts/', include('allauth.urls')),
+    path("accounts/", include("accounts.urls")),
 ]
 
 if settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    
+    
