@@ -1,8 +1,8 @@
 FROM python:3.9
 
-RUN mkdir /usr/src/account-book/
+RUN mkdir /usr/src/account-back/
 
-WORKDIR /usr/src/account-book/
+WORKDIR /usr/src/account-back/
 
 COPY . .
 
@@ -12,4 +12,4 @@ RUN pip install --upgrade pip &&\
 RUN apt-get update &&\
     apt-get install sudo
 
-WORKDIR /usr/src/account-book/account-back
+WORKDIR ./account-back
