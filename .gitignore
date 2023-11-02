@@ -16,5 +16,4 @@ mysql-data/
 account-back/A/secret.py
 
 # 불필요 캐시 및 파일
-account-back/A/__pycache__/
-account-back/accounts/__pycache__/
+__pycache__/
