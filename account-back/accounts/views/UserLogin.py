@@ -4,7 +4,6 @@ from accounts.serializers import UserSerializer
 from django.contrib.auth import get_user_model
 from rest_framework import status, views
 from django.contrib.auth.hashers import check_password
-import logging
 
 class UserLoginView(views.APIView):
     def post(self,request):
@@ -35,12 +34,12 @@ class UserLoginView(views.APIView):
     
     @staticmethod
     def parse_user_info(request):
-        userID = request.data.get("userID")
+        email = request.data.get("email")
         password = request.data.get("password")
         
         # 데이터 추출
         User = get_user_model()
-        user = User.objects.filter(userID=userID).first()
+        user = User.objects.filter(email=email).first()
         
         return user, password
     

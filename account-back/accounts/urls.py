@@ -1,5 +1,5 @@
-from django.urls import path, include
-from .views import UserLogin, UserCreate
+from django.urls import path
+from accounts.views import UserLogin, UserCreate
 from rest_framework_simplejwt.views import (
     TokenRefreshView,
     TokenVerifyView,

@@ -13,19 +13,18 @@ class TimeStampedModel(models.Model):
 
 
 class User(AbstractBaseUser, PermissionsMixin, TimeStampedModel):
-    userID = models.CharField(max_length=20, unique=True)
-    username = models.CharField(max_length=20)
-    phone_number = models.CharField(max_length=13)
     email = models.EmailField(db_index=True, unique=True)
-
+    username = models.CharField(max_length=20)
+    nickname = models.CharField(max_length=20, unique=True)
+    
+    
     is_staff = models.BooleanField(default=False)
     
-    USERNAME_FIELD = 'userID'
+    USERNAME_FIELD = 'email'
     
     REQUIRED_FIELDS = [
         "username",
-        "email",
-        "phone_number"
+        "nickname"
     ]
     
     objects = UserManager()
