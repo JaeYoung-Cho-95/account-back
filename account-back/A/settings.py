@@ -27,7 +27,8 @@ DATABASES = DATABASES
 AUTH_USER_MODEL = "accounts.User"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# FIXME : 배포시에는 False, 개발시에는 True
+DEBUG = False
 
 ALLOWED_HOSTS = ['backend-django', '0.0.0.0', 'localhost']
 
