@@ -18,20 +18,22 @@ AUTH_USER_MODEL = "accounts.User"
 # FIXME : 배포시에는 False, 개발시에는 True
 DEBUG = True
 
-ALLOWED_HOSTS = ['backend-django', '0.0.0.0', 'localhost']
-
+if DEBUG:
+    ALLOWED_HOSTS = ['backend-django', '0.0.0.0', 'localhost']
+else:
+    ALLOWED_HOSTS = ['account-book.store', 'www.account-book.store']
 
 # Application definition
-
 INSTALLED_APPS = [
-    # loacl app
+    # loacl apps
     "accounts",
+    
+    # django third party apps
     'rest_framework',
-    
-    # django rest auth,
     "rest_framework_simplejwt",
+    "corsheaders",
     
-    # django main app
+    # django main apps
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -41,9 +43,17 @@ INSTALLED_APPS = [
 ]
 
 
+# CORS 관련 설정
+CORS_ALLOWED_ORIGINS = [
+    'https://account-book.store',
+    'https://www.account-book.store'
+]
+
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
