@@ -16,6 +16,7 @@ mysql-data/
 # 중요 키 또는 환경 변수
 account-back/A/secret.py
 account-back/tests/secret.py
+account-back/A/settings_detail/
 
 # 불필요 캐시 및 파일
 __pycache__/
