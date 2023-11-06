@@ -46,10 +46,10 @@ INSTALLED_APPS = [
 
 
 # CORS 관련 설정
-CORS_ALLOWED_ORIGINS = [
-    'https://account-book.store',
-    'https://www.account-book.store'
-]
+# CORS_ALLOWED_ORIGINS = [
+#     'https://account-book.store',
+#     'https://www.account-book.store'
+# ]
 CORS_ORIGIN_ALLOW_ALL = True
 
 
