@@ -1,9 +1,17 @@
+from venv import logger
 from rest_framework.response import Response
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from accounts.serializers import UserSerializer
 from django.contrib.auth import get_user_model
 from rest_framework import status, views
 from django.contrib.auth.hashers import check_password
+
+
+import logging
+
+# Get an instance of a logger
+logger = logging.getLogger("A")
+
 
 class UserLoginView(views.APIView):
     def post(self,request):
@@ -21,7 +29,7 @@ class UserLoginView(views.APIView):
         if not check_password(password, user.password):
             return Response(
                 {"message": "비밀번호가 일치하지않습니다.."}, 
-                status=status.HTTP_400_BAD_REQUEST
+                status=status.HTTP_401_UNAUTHORIZED
                 )
         
         try:
@@ -46,22 +54,25 @@ class UserLoginView(views.APIView):
     
     @staticmethod
     def make_token_with_cookie(user):
-        token = TokenObtainPairSerializer.get_token(user)
-        refresh_token = str(token)
+        try:
+            token = TokenObtainPairSerializer.get_token(user)
+        except Exception as e:
+            logger.error(f'Exception occurred: {e}')
+            
         access_token = str(token.access_token)
+        refresh_token = str(token) 
+        
         response = Response(
                 {
                     "user": UserSerializer(user).data,
                     "message": "로그인 성공",
                     "jwt_token": {
-                        "access_token": access_token,
-                        "refresh_token": refresh_token
+                        "access_token": access_token
                     },
                 },
                 status=status.HTTP_200_OK
             )
 
-        response.set_cookie("access_token", access_token, httponly=True)
-        response.set_cookie("refresh_token", refresh_token, httponly=True)
+        response.set_cookie("refresh_token", refresh_token, httponly=True, secure=True)
 
         return response

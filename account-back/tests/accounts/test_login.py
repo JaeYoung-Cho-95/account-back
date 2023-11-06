@@ -23,5 +23,5 @@ def test_exsist_user():
     data = duplicated_user_login
 
     response = requests.post(url=url, data=data)
-
+    
     assert response.status_code == 200
