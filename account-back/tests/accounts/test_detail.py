@@ -19,6 +19,6 @@ def test_correct_user_detail():
         'email': duplicated_user_login["email"]
     }
     response = requests.get(url=detail_url, headers=headers, params=data)
-    
+
     assert response.json()["email"] == duplicated_user_login["email"]
     assert response.status_code == 200

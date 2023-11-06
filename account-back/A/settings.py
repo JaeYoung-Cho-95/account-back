@@ -22,7 +22,7 @@ DEBUG = False
 if DEBUG:
     ALLOWED_HOSTS = ["backend-django", "0.0.0.0", "localhost"]
 else:
-    ALLOWED_HOSTS = ["account-book.store", "www.account-book.store"]
+    ALLOWED_HOSTS = ["account-book.store", "www.account-book.store", "0.0.0.0", "localhost"]
 
 # Application definition
 
