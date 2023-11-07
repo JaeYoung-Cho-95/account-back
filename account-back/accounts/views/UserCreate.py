@@ -1,13 +1,25 @@
-import logging
+from rest_framework.response import Response
 from accounts.serializers import UserSerializer
 
 from django.contrib.auth import get_user_model
-from django.conf import settings
-from rest_framework import generics
+from rest_framework import status
+from rest_framework.views import APIView
+
+import logging
+logger = logging.getLogger('A')
+
 
 User = get_user_model()
 
-# Create your views here.
-class UserCreateView(generics.CreateAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
+
+class UserCreateView(APIView):
+    def post(self, request):
+        data = request.data
+        serializer = UserSerializer(data=data)
+        
+        if serializer.is_valid():
+            logging.info(serializer.validated_data)
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

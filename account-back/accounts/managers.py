@@ -5,19 +5,15 @@ class UserManager(BaseUserManager):
     def create_user(self, email, username, nickname, password=None, **extra_fields):
         if not email:
             raise ValueError("반드시 email 주소를 입력해야합니다.")
-        
+
         if not username:
             raise ValueError("반드시 이름을 입력해야합니다.")
 
         if not nickname:
             raise ValueError("반드시 별명를 입력해야합니다.")
 
-
         user = self.model(
-            email=email,
-            username=username,
-            nickname=nickname,
-            **extra_fields
+            email=email, username=username, nickname=nickname, **extra_fields
         )
 
         user.set_password(password)

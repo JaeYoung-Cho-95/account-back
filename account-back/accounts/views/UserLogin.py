@@ -7,12 +7,6 @@ from rest_framework import status, views
 from django.contrib.auth.hashers import check_password
 
 
-import logging
-
-# Get an instance of a logger
-logger = logging.getLogger("A")
-
-
 class UserLoginView(views.APIView):
     def post(self,request):
         # 유저 정보 파싱
