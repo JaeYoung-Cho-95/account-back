@@ -15,7 +15,7 @@ class CustomTokenRefreshView(TokenRefreshView):
 
         if refresh is None:
             return Response(
-                {"detail": "Refresh token was not provided."},
+                {"message": "refresh_token 이 cookie에 존재하지 않습니다."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
