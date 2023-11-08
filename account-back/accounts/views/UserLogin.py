@@ -5,9 +5,9 @@ from accounts.serializers import UserSerializer
 from django.contrib.auth import get_user_model
 from rest_framework import status, views
 from django.contrib.auth.hashers import check_password
+from accounts.views.utils.parsing import Parsing
 
-
-class UserLoginView(views.APIView):
+class UserLoginView(views.APIView, Parsing):
     def post(self,request):
         # 유저 정보 파싱
         user, password = self.parse_user_info(request)
@@ -33,17 +33,6 @@ class UserLoginView(views.APIView):
                 {"message": "로그인에 실패하였습니다. 재시도해주세요."},
                 status=status.HTTP_400_BAD_REQUEST
             )
-    
-    @staticmethod
-    def parse_user_info(request):
-        email = request.data.get("email")
-        password = request.data.get("password")
-        
-        # 데이터 추출
-        User = get_user_model()
-        user = User.objects.filter(email=email).first()
-        
-        return user, password
     
     
     @staticmethod
