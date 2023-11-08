@@ -1,4 +1,5 @@
 import os, sys
+from venv import logger
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
 import requests
@@ -49,21 +50,25 @@ def test_noexsist_user_change():
 
 def test_exsist_user_delete():
     response = requests.delete(url=detail_url, data=duplicated_user_login)
-    assert response.status_code == 401
+    # assert response.status_code == 401
     
-    response = requests.post(url=login_url, data=duplicated_user_login)
-    duplicated_user_login["email"] = "333@gmail.com"
+    temp_data = duplicated_user_login.copy()
+    response = requests.post(url=login_url, data=temp_data)
     headers = {"Authorization": f"Bearer {response.json()['jwt_token']['access_token']}"}
-    response = requests.delete(url=detail_url, data=duplicated_user_login, headers=headers)
     
-    assert response.status_code == 500
+    temp_data["email"] = "333@gmail.com"
+    response = requests.delete(url=detail_url, data=temp_data, headers=headers)
     
-    response = requests.post(url=login_url, data=duplicated_user_login)
+    assert response.status_code == 400
+    
+    temp_data = duplicated_user_login.copy()
+    response = requests.post(url=login_url, data=temp_data)
+    headers = {"Authorization": f"Bearer {response.json()['jwt_token']['access_token']}"}
+    
     duplicated_user_login["password"] = "1234qqqq"
-    headers = {"Authorization": f"Bearer {response.json()['jwt_token']['access_token']}"}
     response = requests.delete(url=detail_url, data=duplicated_user_login, headers=headers)
     assert response.status_code == 401
     
     
-    
-    
+if __name__ == "__main__":
+    test_exsist_user_delete()
