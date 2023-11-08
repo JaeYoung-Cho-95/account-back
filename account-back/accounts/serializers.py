@@ -8,7 +8,6 @@ from .validator import (
 from rest_framework import serializers
 
 import logging
-
 logger = logging.getLogger("A")
 
 
@@ -21,7 +20,29 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ["email", "username", "nickname", "password"]
-
+     
+    def __init__(self, *args, **kwargs):
+        super(UserSerializer, self).__init__(*args, **kwargs)
+        request = self.context.get('request', None)
+        
+        if request and getattr(request, 'method', None) == 'PATCH':
+            for field_name in self.fields:
+                field = self.fields[field_name]
+                field.required = False
+    
     def create(self, validated_data):
         user = User.objects.create_user(**validated_data)
         return user
+    
+    def update(self, instance, validated_data):
+        password = validated_data.pop('password', None)
+        
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+
+        if password:
+            instance.set_password(password)
+        
+        instance.save()
+        
+        return instance

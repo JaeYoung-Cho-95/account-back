@@ -22,7 +22,7 @@ class UserLoginView(views.APIView):
         # 비밀번호 일치 X
         if not check_password(password, user.password):
             return Response(
-                {"message": "비밀번호가 일치하지않습니다.."}, 
+                {"message": "비밀번호가 일치하지않습니다."}, 
                 status=status.HTTP_401_UNAUTHORIZED
                 )
         

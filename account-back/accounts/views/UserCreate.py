@@ -5,9 +5,6 @@ from django.contrib.auth import get_user_model
 from rest_framework import status
 from rest_framework.views import APIView
 
-import logging
-logger = logging.getLogger('A')
-
 
 User = get_user_model()
 
@@ -18,7 +15,6 @@ class UserCreateView(APIView):
         serializer = UserSerializer(data=data)
         
         if serializer.is_valid():
-            logging.info(serializer.validated_data)
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         
