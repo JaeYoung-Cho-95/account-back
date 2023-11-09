@@ -41,6 +41,12 @@ class UserDetailView(APIView, Parsing):
         if valid_res:
             # email 과 username 은 변경하지 않음
             data = self.pop_email_username(request.data)
+            
+            # 변경할 비밀번호를 추출해서 serializer 에 password 로 넣고 저장하기
+            if "change_password" in data.keys():
+                data = self.pop_change_password(data)
+
+            
             serializer = UserSerializer(user_instance, data, context={"request": request}, partial=True)
             if serializer.is_valid():
                 serializer.save()

@@ -19,3 +19,11 @@ class Parsing:
         data.pop("username", None)
 
         return data
+
+    @staticmethod
+    def pop_change_password(data):
+        data = data.copy()
+        data.pop("password", None)
+        password = data.pop("change_password", None)
+        data["password"] = password
+        return data
