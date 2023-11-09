@@ -22,6 +22,7 @@ class CustomTokenRefreshView(TokenRefreshView):
             return response
         
         # 기존 refresh token 을 이용해서 access_token 발급
+        refresh_token = RefreshToken(refresh_token)
         data = {"access": f"{refresh_token.access_token}"}
         # 기존 refresh token 은 blacklist 에 추가
         refresh_token.blacklist()
@@ -59,10 +60,7 @@ class CustomTokenRefreshView(TokenRefreshView):
                 ),
                 False,
             )
-        logger.info(request.user)
-        logger.info(request.user)
-        logger.info(request.user)
-        
+
         if isinstance(request.user, AnonymousUser):
             return (
                 Response(
