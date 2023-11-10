@@ -6,8 +6,13 @@ logger = logging.getLogger("A")
 
 class Parsing:
     def parse_user_info(self, request):
-        email = request.data.get("email")
-        password = request.data.get("password")
+        if request.method == "GET":
+            # email 을 받아오지만 그냥 편의상 변수르 password 로 할당하고 반환
+            email = request.query_params.get("email")
+            password = None
+        else:
+            email = request.data.get("email")
+            password = request.data.get("password")
 
         # 데이터 추출
         User = get_user_model()

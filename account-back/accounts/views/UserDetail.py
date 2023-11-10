@@ -18,16 +18,20 @@ class UserDetailView(APIView, Parsing):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        request_email = request.query_params.get("email")
-        User_model = get_user_model()
+        # request_email = request.query_params.get("email")
+        user_instance, _ = self.parse_user_info(request)
+        
+        if user_instance != request.user:
+            return Response(
+                data={"message": "본인계정에 대한 조회만 가능합니다."}, status=status.HTTP_401_UNAUTHORIZED
+            )
 
-        user_qs = User_model.objects.filter(email=request_email).first()
-        if not user_qs:
+        if not user_instance:
             return Response(
                 data={"message": "사용자가 존재하지 않습니다"}, status=status.HTTP_404_NOT_FOUND
             )
 
-        user_serializer = UserSerializer(user_qs).data
+        user_serializer = UserSerializer(user_instance).data
         return Response(user_serializer, status=status.HTTP_200_OK)
 
     def patch(self, request):
