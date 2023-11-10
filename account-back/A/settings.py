@@ -6,15 +6,10 @@ from .settings_detail import set_logging, set_restframework, set_simplejwt
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
-
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = SECRET_KEY
 DATABASES = DATABASES
 AUTH_USER_MODEL = "accounts.User"
-
-# SECURITY WARNING: don't run with debug turned on in production!
 
 # FIXME : 배포시에는 False, 개발시에는 True
 DEBUG = False
@@ -45,7 +40,9 @@ INSTALLED_APPS = [
 
 
 # CORS 관련 설정
-CORS_ORIGIN_ALLOW_ALL = True
+# CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
 
 
 MIDDLEWARE = [
@@ -79,40 +76,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "A.wsgi.application"
 
-
-# Database
-# https://docs.djangoproject.com/en/3.2/ref/settings/#databases
-
-
-# Password validation
-# https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
-
-# AUTH_PASSWORD_VALIDATORS = [
-#     {
-#         "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
-#     },
-#     {
-#         "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
-#         'OPTIONS': {
-#             'min_length': 8,
-#         }
-#     },
-#     {
-#         "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
-#     },
-#     {
-#         "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
-#     },
-#     {
-#         'NAME': 'accounts.validator.CustomPasswordValidator',
-#     }
-# ]
-
-
-
-# Internationalization
-# https://docs.djangoproject.com/en/3.2/topics/i18n/
-
 LANGUAGE_CODE = "en-us"
 
 TIME_ZONE = "Asia/Seoul"
@@ -129,8 +92,6 @@ USE_TZ = True
 
 STATIC_URL = "/static/"
 
-# Default primary key field type
-# https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
