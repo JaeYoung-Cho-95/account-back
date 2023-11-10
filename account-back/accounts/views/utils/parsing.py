@@ -1,5 +1,8 @@
+from venv import logger
 from django.contrib.auth import get_user_model
 
+import logging
+logger = logging.getLogger("A")
 
 class Parsing:
     def parse_user_info(self, request):
@@ -24,6 +27,6 @@ class Parsing:
     def pop_change_password(data):
         data = data.copy()
         data.pop("password", None)
-        password = data.pop("change_password", None)
+        password = data.pop("change_password", None)[0]
         data["password"] = password
         return data

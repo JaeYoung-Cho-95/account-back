@@ -45,9 +45,10 @@ class UserDetailView(APIView, Parsing):
             # 변경할 비밀번호를 추출해서 serializer 에 password 로 넣고 저장하기
             if "change_password" in data.keys():
                 data = self.pop_change_password(data)
-
-            
+        
+        
             serializer = UserSerializer(user_instance, data, context={"request": request}, partial=True)
+        
             if serializer.is_valid():
                 serializer.save()
                 return Response(data=serializer.data, status=status.HTTP_200_OK)
@@ -94,7 +95,6 @@ class UserDetailView(APIView, Parsing):
                 ),
                 False,
             )
-
         # 요청자의 username 과 삭제하려는 user_instance의 username 가 동일해야함.
         if user_instance == request.user:
             return None, True
