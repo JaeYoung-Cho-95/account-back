@@ -5,7 +5,6 @@ from .settings_detail import set_logging, set_restframework, set_simplejwt
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = SECRET_KEY
 DATABASES = DATABASES
@@ -97,6 +96,8 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 from datetime import timedelta
 from A.secret import SECRET_KEY
+
+SESSION_COOKIE_DOMAIN = '.account-book.store'
 
 SIMPLE_JWT = set_simplejwt.SIMPLE_JWT
 REST_FRAMEWORK = set_restframework.REST_FRAMEWORK
