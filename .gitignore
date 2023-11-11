@@ -20,3 +20,5 @@ account-back/A/settings_detail/
 
 # 불필요 캐시 및 파일
 __pycache__/
+images/
+.DS_Store
