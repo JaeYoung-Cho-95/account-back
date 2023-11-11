@@ -38,12 +38,6 @@ INSTALLED_APPS = [
 ]
 
 
-# CORS 관련 설정
-# CORS_ORIGIN_ALLOW_ALL = True
-CORS_ALLOW_ALL_ORIGINS = True
-CORS_ALLOW_CREDENTIALS = True
-
-
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
@@ -94,10 +88,13 @@ STATIC_URL = "/static/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-from datetime import timedelta
-from A.secret import SECRET_KEY
+# cookie
+# CSRF_COOKIE_DOMAIN = '.account-book.store'
+# SESSION_COOKIE_DOMAIN = '.account-book.store'
 
-SESSION_COOKIE_DOMAIN = '.account-book.store'
+# CORS 관련 설정
+# CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
 
 SIMPLE_JWT = set_simplejwt.SIMPLE_JWT
 REST_FRAMEWORK = set_restframework.REST_FRAMEWORK

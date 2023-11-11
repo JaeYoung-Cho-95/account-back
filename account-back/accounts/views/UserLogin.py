@@ -6,6 +6,8 @@ from rest_framework import status, views
 from django.contrib.auth.hashers import check_password
 from accounts.views.utils.parsing import Parsing
 
+import logging
+logger = logging.getLogger("A")
 
 class UserLoginView(views.APIView, Parsing):
     def post(self, request):
@@ -55,8 +57,10 @@ class UserLoginView(views.APIView, Parsing):
             "refresh_token",
             refresh_token,
             httponly=True,
-            secure=True,
-            domain=".account-book.store",
+            secure=True
         )
 
+        logger.info(f"response cookie : {response.cookies}")
+        logger.info("*"*30)
+        
         return response
