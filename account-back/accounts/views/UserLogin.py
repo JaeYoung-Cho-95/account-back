@@ -59,8 +59,5 @@ class UserLoginView(views.APIView, Parsing):
             httponly=True,
             secure=True
         )
-
-        logger.info(f"response cookie : {response.cookies}")
-        logger.info("*"*30)
         
         return response
