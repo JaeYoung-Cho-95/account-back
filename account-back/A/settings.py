@@ -89,11 +89,11 @@ STATIC_URL = "/static/"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # cookie
-# CSRF_COOKIE_DOMAIN = '.account-book.store'
+CSRF_COOKIE_DOMAIN = '.account-book.store'
 # SESSION_COOKIE_DOMAIN = '.account-book.store'
 
 # CORS 관련 설정
-# CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 
 SIMPLE_JWT = set_simplejwt.SIMPLE_JWT
