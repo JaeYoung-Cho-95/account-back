@@ -12,28 +12,21 @@ logger = logging.getLogger("A")
 
 class CustomTokenRefreshView(TokenRefreshView):
     def post(self, request, *args, **kwargs):
-        # 쿠키에서 refresh token 가지고 오기
         refresh_token = request.COOKIES.get("refresh_token")
     
-        # 각종 사용자 및 토큰 정보 인증
         response, valid_res = self.valid_token(refresh_token, request)
         User = get_user_model()
         
-        # 인증 실패시 에러 메시지 및 상태코드 응답
         if not valid_res:
             return response
         
-        # 기존 refresh token 을 이용해서 access_token 발급
         refresh_token = RefreshToken(refresh_token)
         user = refresh_token["user_id"]
         
-        # 새로운 refresh token 발급
         new_refresh_token = RefreshToken.for_user(User.objects.get(id=user))
         
-        # refresh token 으로 access token 발급
         data = {"access_token": f"{new_refresh_token.access_token}"}
         
-        # 기존 refresh token 은 blacklist 에 추가
         refresh_token.blacklist()
         
         response = Response(data=data, status=status.HTTP_200_OK)
