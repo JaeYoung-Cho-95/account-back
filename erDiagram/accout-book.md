@@ -13,7 +13,7 @@ erDiagram
     }
     
     ACCOUNTBOOK_DATE {
-        integerid USER_id
+        foreginkey user
         datefield date
         integerfield income 
         integerfield spending
