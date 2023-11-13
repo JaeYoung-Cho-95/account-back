@@ -23,6 +23,7 @@ else:
 INSTALLED_APPS = [
     # loacl apps
     "accounts",
+    "budget",
     # django third party apps
     "rest_framework",
     "rest_framework_simplejwt",
