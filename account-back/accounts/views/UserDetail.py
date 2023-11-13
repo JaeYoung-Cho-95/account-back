@@ -3,7 +3,6 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from django.contrib.auth import get_user_model
 from django.contrib.auth.hashers import check_password
 from accounts.serializers import UserSerializer
 from accounts.views.utils.parsing import Parsing
@@ -18,7 +17,6 @@ class UserDetailView(APIView, Parsing):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        # request_email = request.query_params.get("email")
         user_instance, _ = self.parse_user_info(request)
         
         if user_instance != request.user:

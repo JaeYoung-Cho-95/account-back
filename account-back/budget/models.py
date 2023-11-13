@@ -14,7 +14,7 @@ class TimeTempleteModel(models.Model):
 
 class AccountDateModel(TimeTempleteModel):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    datetime = models.DateTimeField(blank=False)
+    date = models.DateField(blank=False, default=None)
     income_summary = models.DecimalField(max_digits=11, decimal_places=0, default=0)
     spending_summary = models.DecimalField(max_digits=11, decimal_places=0, default=0)
     left_money = models.DecimalField(max_digits=11, decimal_places=0, default=0)
@@ -23,7 +23,7 @@ class AccountDateModel(TimeTempleteModel):
         ordering : ['-datetime']
     
     def __str__(self):
-        return f"{self.datetime} 남은 돈 : {self.left_money}"
+        return self.date
     
     
 class AccountDateDetailModel(TimeTempleteModel):
@@ -42,3 +42,12 @@ class AccountDateDetailModel(TimeTempleteModel):
 
 class TagModel(models.Model):
     tag = models.CharField(max_length=10, unique=True)
+    
+
+if __name__ == "__main__":
+    import datetime
+    print(datetime.date(2023, 1, 1))
+    print(type(datetime.date(2023, 1, 1)))
+    print(str(datetime.date(2023, 1, 1)).split("-"))
+    print(str(datetime.date(2023, 1, 1)).split("-")[1])
+    
