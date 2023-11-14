@@ -7,10 +7,6 @@ from django.contrib.auth.hashers import check_password
 from accounts.serializers import UserSerializer
 from accounts.views.utils.parsing import Parsing
 
-import logging
-
-logger = logging.getLogger("A")
-
 
 class UserDetailView(APIView, Parsing):
     authentication_classes = [JWTAuthentication]
@@ -18,10 +14,11 @@ class UserDetailView(APIView, Parsing):
 
     def get(self, request):
         user_instance, _ = self.parse_user_info(request)
-        
+
         if user_instance != request.user:
             return Response(
-                data={"message": "본인계정에 대한 조회만 가능합니다."}, status=status.HTTP_401_UNAUTHORIZED
+                data={"message": "본인계정에 대한 조회만 가능합니다."},
+                status=status.HTTP_401_UNAUTHORIZED,
             )
 
         if not user_instance:
@@ -33,37 +30,32 @@ class UserDetailView(APIView, Parsing):
         return Response(user_serializer, status=status.HTTP_200_OK)
 
     def patch(self, request):
-        # 유저정보 query set 파싱
-        user_instance, _ = self.parse_user_info(request)
+        user_instance, password = self.parse_user_info(request)
 
-        # 유저정보 인증
-        _response, valid_res = self.valid_user(user_instance, request)
+        _response, valid_res = self.valid_user(user_instance, request, password)
 
-        # 인증 완료
         if valid_res:
-            # email 과 username 은 변경하지 않음
             data = self.pop_email_username(request.data)
-            
-            # 변경할 비밀번호를 추출해서 serializer 에 password 로 넣고 저장하기
+
             if "change_password" in data.keys():
                 data = self.pop_change_password(data)
-        
-        
-            serializer = UserSerializer(user_instance, data, context={"request": request}, partial=True)
-        
+
+            serializer = UserSerializer(
+                user_instance, data, context={"request": request}, partial=True
+            )
+
             if serializer.is_valid():
                 serializer.save()
                 return Response(data=serializer.data, status=status.HTTP_200_OK)
-            
+
             return Response(
                 data=serializer.errors,
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        # 인증 실패
+
         return _response
 
     def delete(self, request):
-        # 유저 정보 파싱
         user_instance, password = self.parse_user_info(request)
 
         _response, valid_res = self.valid_user(user_instance, request, password)
@@ -87,16 +79,19 @@ class UserDetailView(APIView, Parsing):
                 False,
             )
 
-        # 회원탈퇴는 비밀번호 검증도 진행
-        if (request.method == "DELETE") and (
-            not check_password(password, user_instance.password)
-        ):
+        if not check_password(password, user_instance.password):
             return (
                 Response(
                     {"message": "비밀번호가 일치하지않습니다."}, status=status.HTTP_401_UNAUTHORIZED
                 ),
                 False,
             )
-        # 요청자의 username 과 삭제하려는 user_instance의 username 가 동일해야함.
+
         if user_instance == request.user:
             return None, True
+        return (
+            Response(
+                {"message": "access token 과 유저의 정보가 일치하지 않습니다."}, status=status.HTTP_401_UNAUTHORIZED
+            ),
+            False,
+        )
