@@ -89,16 +89,13 @@ STATIC_URL = "/static/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-# cookie
+# CORS 관련 설정
+
 # FIXME : 실 운영서비스 사용시에는 CSRF None 말고 도메인 정확하게 지정하기
 # CSRF_COOKIE_DOMAIN = '.account-book.store'
-CSRF_COOKIE_DOMAIN = None
-
-
-# CORS 관련 설정
 CORS_ALLOW_ALL_ORIGINS = True
+CSRF_COOKIE_DOMAIN = None
 CORS_ALLOW_CREDENTIALS = True
-
 
 SIMPLE_JWT = set_simplejwt.SIMPLE_JWT
 REST_FRAMEWORK = set_restframework.REST_FRAMEWORK

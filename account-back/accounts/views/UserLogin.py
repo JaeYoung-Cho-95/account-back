@@ -57,7 +57,8 @@ class UserLoginView(views.APIView, Parsing):
             "refresh_token",
             refresh_token,
             httponly=True,
-            secure=True
+            secure=True,
+            samesite='None'
         )
         
         return response
