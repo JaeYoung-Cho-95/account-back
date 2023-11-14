@@ -1,3 +1,3 @@
-urlspattern = [
+urlpatterns = [
     
 ]
