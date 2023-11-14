@@ -57,16 +57,13 @@ class UserDetailView(APIView, Parsing):
 
     def delete(self, request):
         user_instance, password = self.parse_user_info(request)
-
         _response, valid_res = self.valid_user(user_instance, request, password)
-
         if valid_res:
             user_instance.delete()
             return Response(
                 data={"message": "회원탈퇴가 정상적으로 되었습니다."},
                 status=status.HTTP_204_NO_CONTENT,
             )
-
         return _response
 
     @staticmethod
@@ -78,7 +75,6 @@ class UserDetailView(APIView, Parsing):
                 ),
                 False,
             )
-
         if not check_password(password, user_instance.password):
             return (
                 Response(
@@ -94,5 +90,5 @@ class UserDetailView(APIView, Parsing):
                 {"message": "access token 과 유저의 정보가 일치하지 않습니다."},
                 status=status.HTTP_401_UNAUTHORIZED,
             ),
-            False,
+            False
         )

@@ -69,6 +69,3 @@ def test_exsist_user_delete():
     response = requests.delete(url=detail_url, data=duplicated_user_login, headers=headers)
     assert response.status_code == 401
     
-    
-if __name__ == "__main__":
-    test_exsist_user_delete()
