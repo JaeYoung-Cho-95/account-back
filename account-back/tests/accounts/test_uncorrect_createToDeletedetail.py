@@ -1,5 +1,4 @@
 import os, sys
-from venv import logger
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
 import requests
