@@ -8,7 +8,7 @@ signup_url = "http://localhost:8000/accounts/signup/"
 login_url = "http://localhost:8000/accounts/login/"
 detail_url = "http://localhost:8000/accounts/detail/"
 
-n = random.randrange(999)
+n = random.randrange(100,999)
 signup_data = {
     "email": f"{n}@gmail.com",
     "username": f"t_{n}",
@@ -23,8 +23,11 @@ login_data = {
 change_data = {
     "email": f"{n}@gmail.com",
     "nickname": f"{n}",
-    "password": "A1q2w3e4r!!"
+    "current_password": f"aA!123{n}",
+    "password": "A1q2w3e4r!!",
+    "password_check": "A1q2w3e4r!!"
 }
+
 delete_data = {
     "email": f"{n}@gmail.com",
     "password": f"A1q2w3e4r!!"
@@ -56,13 +59,14 @@ def test_correct_user_detail():
 def test_exsist_user_change():
     response = requests.post(url=login_url, data=login_data)
     headers = {"Authorization": f"Bearer {response.json()['jwt_token']['access_token']}"}
-    
+
     response = requests.patch(url=detail_url, data=change_data, headers=headers)
     
     assert response.status_code == 200
     
 def test_exsist_user_delete():
     response = requests.post(url=login_url, data=delete_data)
+
     headers = {"Authorization": f"Bearer {response.json()['jwt_token']['access_token']}"}
     response = requests.delete(url=detail_url, data=delete_data, headers=headers)
     

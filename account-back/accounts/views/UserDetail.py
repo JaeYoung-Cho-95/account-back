@@ -37,7 +37,7 @@ class UserDetailView(APIView, Parsing):
         if valid_res:
             data = self.pop_email_username(request.data)
 
-            if "change_password" in data.keys():
+            if "current_password" in data.keys():
                 data = self.pop_change_password(data)
 
             serializer = UserSerializer(
@@ -91,7 +91,8 @@ class UserDetailView(APIView, Parsing):
             return None, True
         return (
             Response(
-                {"message": "access token 과 유저의 정보가 일치하지 않습니다."}, status=status.HTTP_401_UNAUTHORIZED
+                {"message": "access token 과 유저의 정보가 일치하지 않습니다."},
+                status=status.HTTP_401_UNAUTHORIZED,
             ),
             False,
         )
