@@ -59,8 +59,8 @@ def test_correct_user_detail():
 def test_exsist_user_change():
     response = requests.post(url=login_url, data=login_data)
     headers = {"Authorization": f"Bearer {response.json()['jwt_token']['access_token']}"}
-
-    response = requests.patch(url=detail_url, data=change_data, headers=headers)
+    
+    response = requests.patch(url=detail_url, json=change_data, headers=headers)
     
     assert response.status_code == 200
     

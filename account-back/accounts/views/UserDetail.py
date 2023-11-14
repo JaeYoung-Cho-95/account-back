@@ -7,6 +7,8 @@ from django.contrib.auth.hashers import check_password
 from accounts.serializers import UserSerializer
 from accounts.views.utils.parsing import Parsing
 
+import logging
+logger = logging.getLogger("A")
 
 class UserDetailView(APIView, Parsing):
     authentication_classes = [JWTAuthentication]
@@ -30,6 +32,7 @@ class UserDetailView(APIView, Parsing):
         return Response(user_serializer, status=status.HTTP_200_OK)
 
     def patch(self, request):
+        logger.info(request.data)
         user_instance, password = self.parse_user_info(request)
 
         _response, valid_res = self.valid_user(user_instance, request, password)

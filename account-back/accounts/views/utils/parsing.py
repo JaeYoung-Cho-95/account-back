@@ -39,6 +39,6 @@ class Parsing:
         data = data.copy()
         data.pop("current_password", None)
         data.pop("password_check", None)
-        password = data.pop("password", None)[0]
+        password = data.pop("password", None)
         data["password"] = password
         return data
