@@ -50,7 +50,6 @@ def test_noexsist_user_change():
 
 def test_exsist_user_delete():
     response = requests.delete(url=detail_url, data=duplicated_user_login)
-    # assert response.status_code == 401
     
     temp_data = duplicated_user_login.copy()
     response = requests.post(url=login_url, data=temp_data)
