@@ -1,6 +1,7 @@
 from django.urls import path
-from budget.views import MonthSummary
+from budget.views import DateSummary, DateDetail
 
 urlpatterns = [
-    path("monthsummary/", MonthSummary.MonthSummaryView.as_view())
+    path("datesummary/", DateSummary.DateSummaryView.as_view()),
+    path("datedetail/", DateDetail.DateDetailView.as_view()),
 ]

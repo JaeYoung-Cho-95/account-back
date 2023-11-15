@@ -1,6 +1,11 @@
+from venv import logger
 from rest_framework.serializers import ModelSerializer, ListField, CharField
 from .models import AccountDateModel, AccountDateDetailModel, TagModel
 import datetime
+
+import logging
+
+logger = logging.getLogger("A")
 
 
 class AccountDateSerializer(ModelSerializer):
@@ -15,6 +20,7 @@ class AccountDateSerializer(ModelSerializer):
 
 
 class AccountDateDetailSerializer(ModelSerializer):
+    date = CharField(max_length=20)
     tag = ListField(child=CharField(max_length=10), max_length=5)
     time = CharField(max_length=2)
 
@@ -25,8 +31,12 @@ class AccountDateDetailSerializer(ModelSerializer):
     def create(self, validated_data):
         instances = []
 
+        logger.info("*"*30)
+        logger.info(validated_data)
+        logger.info("*"*30)
+        
         date = datetime.date(*map(int, validated_data[0]["date"].split("-")))
-        instance = self.make_month_model_instance(date)
+        date_instance = self.make_account_date_model_instance(date)
 
         spend_total, income_total = 0, 0
 
@@ -45,26 +55,31 @@ class AccountDateDetailSerializer(ModelSerializer):
 
             # detail model 생성
             instance = AccountDateDetailModel.objects.create(**data)
-            instance.date.add()
-            # tag instacne 생성 후 외래키 연결
+            
+            # DateDetail model의 date column 에 date_instance 외래키 연결
+            instance.date.add(date_instance)
+            
+            # DateDetail model의 tag column 에 tag_instance 외래키 연결
             for tag in tag_data:
                 tag, _ = TagModel.objects.get_or_create(tag=tag)
+
                 instance.tag.add(tag)
             
             instances.append(instance)
 
+        # incomde_total , spend_total 결과를 넣어서 업데이트 하기
+        self.make_account_date_model_instance(date, income_total, spend_total)
+        
         return instances
 
     def make_account_date_model_instance(self, date, income_summary=0, spend_summary=0):
         user = self.context.get("request").user
 
-        accountdate_instance = (
-            AccountDateModel.objects.filter(user=user).order_by("-date").first() or 0
-        )
+        accountdate_instance = AccountDateModel.objects.filter(user=user).order_by("-date").first() or False
         if accountdate_instance:
-            leftmoney = accountdate_instance.left_money
+            leftmoney = accountdate_instance.left_money + income_summary - spend_summary
         else:
-            leftmoney = 0
+            leftmoney = 0 + income_summary - spend_summary
 
         data = {
             "user": user,
@@ -76,5 +91,5 @@ class AccountDateDetailSerializer(ModelSerializer):
 
         detail_serializer = AccountDateSerializer(data)
         if detail_serializer.is_valid():
-            instance = AccountDateModel.objects.get_or_create(detail_serializer.data)
+            instance, _ = AccountDateModel.objects.get_or_create(**detail_serializer.data)
             return instance

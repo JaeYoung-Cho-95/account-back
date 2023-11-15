@@ -10,7 +10,7 @@ import logging
 logger = logging.getLogger("A")
 
 
-class MonthSummaryView(APIView):
+class DateSummaryView(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 

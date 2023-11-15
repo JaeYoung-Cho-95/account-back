@@ -4,7 +4,7 @@ from django.conf import settings
 
 
 # Create your models here.
-class TimeTempleteModel(models.Model):
+class TimeTemplateModel(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -12,7 +12,7 @@ class TimeTempleteModel(models.Model):
         abstract = True
 
 
-class AccountDateModel(TimeTempleteModel):
+class AccountDateModel(TimeTemplateModel):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     date = models.DateField(blank=False, default=None)
     income_summary = models.DecimalField(max_digits=11, decimal_places=0, default=0)
@@ -20,13 +20,13 @@ class AccountDateModel(TimeTempleteModel):
     left_money = models.DecimalField(max_digits=11, decimal_places=0, default=0)
 
     class Meta:
-        ordering: ["-datetime"]
+        ordering = ["-date"]
 
     def __str__(self):
         return self.date
 
 
-class AccountDateDetailModel(TimeTempleteModel):
+class AccountDateDetailModel(TimeTemplateModel):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     date = models.ForeignKey("AccountDateModel", blank=True, on_delete=models.CASCADE)
     tag = models.ManyToManyField("TagModel", blank=True)
@@ -37,7 +37,7 @@ class AccountDateDetailModel(TimeTempleteModel):
     content = models.CharField(max_length=50, blank=True)
 
     class Meta:
-        ordering: ["date", "time"]
+        ordering = ["date", "time"]
 
 
 class TagModel(models.Model):
