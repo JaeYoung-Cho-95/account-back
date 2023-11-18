@@ -12,6 +12,7 @@ User = get_user_model()
 class UserCreateView(APIView):
     def post(self, request):
         data = request.data
+        
         serializer = UserSerializer(data=data)
         
         if serializer.is_valid():

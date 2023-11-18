@@ -19,7 +19,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ["email", "username", "nickname", "password"]
+        fields = ["email", "username", "nickname", "password", "profile_image"]
      
     def __init__(self, *args, **kwargs):
         super(UserSerializer, self).__init__(*args, **kwargs)
@@ -46,3 +46,6 @@ class UserSerializer(serializers.ModelSerializer):
         instance.save()
         
         return instance
+    
+    def validate_profile_image(self, value):
+        pass
