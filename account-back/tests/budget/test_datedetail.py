@@ -17,6 +17,5 @@ def test_create_datedetail():
     }
 
     response = requests.post(url=datedetail_url, headers=headers, json=create_data)
-    print(response.json())
     
-    assert response.status_code == 200
+    assert response.status_code == 201

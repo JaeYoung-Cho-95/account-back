@@ -1,17 +1,30 @@
-from venv import logger
-from rest_framework.serializers import ModelSerializer, ListField, CharField
+from rest_framework.exceptions import ValidationError
+from rest_framework.serializers import (
+    ModelSerializer,
+    CharField,
+    PrimaryKeyRelatedField,
+)
 from .models import AccountDateModel, AccountDateDetailModel, TagModel
-import datetime
+from django.contrib.auth import get_user_model
 
 import logging
 
 logger = logging.getLogger("A")
 
 
+class TagSerializer(ModelSerializer):
+    class Meta:
+        model = TagModel
+        fields = ["tag"]
+
+
 class AccountDateSerializer(ModelSerializer):
+    user = PrimaryKeyRelatedField(queryset=get_user_model().objects.all())
+
     class Meta:
         model = AccountDateModel
         fields = [
+            "user",
             "date",
             "income_summary",
             "spending_summary",
@@ -20,76 +33,55 @@ class AccountDateSerializer(ModelSerializer):
 
 
 class AccountDateDetailSerializer(ModelSerializer):
-    date = CharField(max_length=20)
-    tag = ListField(child=CharField(max_length=10), max_length=5)
+    user = PrimaryKeyRelatedField(queryset=get_user_model().objects.all())
+    date = PrimaryKeyRelatedField(queryset=AccountDateModel.objects.all())
+    tag = TagSerializer(many=True)
     time = CharField(max_length=2)
+
+    def __init__(self, **kwargs):
+        super(AccountDateDetailSerializer, self).__init__(**kwargs)
+        self.spend_total = 0
+        self.income_total = 0
 
     class Meta:
         model = AccountDateDetailModel
-        fields = ["date", "tag", "time", "income", "spending", "content"]
+        fields = ["user", "date", "tag", "time", "income", "spending", "content"]
 
     def create(self, validated_data):
-        instances = []
+        # total 값 저장
+        self.income_total += validated_data.get("income")
+        self.spend_total += validated_data.get("spending")
 
-        logger.info("*"*30)
-        logger.info(validated_data)
-        logger.info("*"*30)
-        
-        date = datetime.date(*map(int, validated_data[0]["date"].split("-")))
-        date_instance = self.make_account_date_model_instance(date)
+        # time string > datetime type 변환
+        time = validated_data.get("time", 0)
+        validated_data["time"] = f"{time}:00"
 
-        spend_total, income_total = 0, 0
+        # ManyToMany field tag 정보 파싱
+        tag_data = validated_data.pop("tag", [])
+        logger.info(tag_data)
 
-        for data in validated_data:
-            # spend_total 및 income_total 합
-            spend_total += data["spending"]
-            income_total += data["income"]
-
-            # time string > datetime type 변환
-            time = map(int, data.get("time", 0))
-            time = datetime.time(time)
-            data["time"] = time
-
-            # 외래키 정보 파싱
-            tag_data = data.pop("tag", [])
-
+        try:
+            AccountDateDetailModel.objects.get(**validated_data)
+            return False
+        except:
             # detail model 생성
-            instance = AccountDateDetailModel.objects.create(**data)
-            
-            # DateDetail model의 date column 에 date_instance 외래키 연결
-            instance.date.add(date_instance)
-            
-            # DateDetail model의 tag column 에 tag_instance 외래키 연결
+            instance = AccountDateDetailModel.objects.create(**validated_data)
+
+            # ManyToMany field tag 연결
             for tag in tag_data:
-                tag, _ = TagModel.objects.get_or_create(tag=tag)
+                tag_instance, _ = TagModel.objects.get_or_create(tag=tag["tag"])
+                instance.tag.add(tag_instance)
 
-                instance.tag.add(tag)
-            
-            instances.append(instance)
-
-        # incomde_total , spend_total 결과를 넣어서 업데이트 하기
-        self.make_account_date_model_instance(date, income_total, spend_total)
-        
-        return instances
-
-    def make_account_date_model_instance(self, date, income_summary=0, spend_summary=0):
-        user = self.context.get("request").user
-
-        accountdate_instance = AccountDateModel.objects.filter(user=user).order_by("-date").first() or False
-        if accountdate_instance:
-            leftmoney = accountdate_instance.left_money + income_summary - spend_summary
-        else:
-            leftmoney = 0 + income_summary - spend_summary
-
-        data = {
-            "user": user,
-            "date": date,
-            "income_summary": income_summary,
-            "spend_summary": spend_summary,
-            "left_money": leftmoney,
-        }
-
-        detail_serializer = AccountDateSerializer(data)
-        if detail_serializer.is_valid():
-            instance, _ = AccountDateModel.objects.get_or_create(**detail_serializer.data)
             return instance
+
+    def validate_tag(self, value):
+        if len(value) > 5:
+            raise ValidationError("tag 는 5개까지 입력이 가능합니다.")
+        return value
+
+    
+    def validate_time(self,value):
+        if int(value) < 0 or int(value) > 24:
+            raise ValidationError("시간은 0 ~ 24 사이의 숫자만 선택이 가능합니다.")
+        
+        return value
