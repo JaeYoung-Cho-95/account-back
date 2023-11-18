@@ -1,4 +1,6 @@
+from rest_framework.exceptions import ValidationError
 from .models import User
+import boto3
 from .validator import (
     validate_username,
     validate_password,
@@ -6,7 +8,7 @@ from .validator import (
     validate_nickname,
 )
 from rest_framework import serializers
-
+from django.conf import settings
 import logging
 logger = logging.getLogger("A")
 
@@ -48,4 +50,16 @@ class UserSerializer(serializers.ModelSerializer):
         return instance
     
     def validate_profile_image(self, value):
-        pass
+        s3 = boto3.client('s3',aws_access_key_id=settings.AWS_ACCESS_KEY_ID, aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY)
+
+        obj_list = s3.list_objects(Bucket=settings.AWS_STORAGE_BUCKET_NAME, Prefix="")
+        contens_list = obj_list['Contents']
+
+        temp = False
+        for content in contens_list:
+            if value == content["Key"]:
+                temp = True
+        
+        if temp:
+            return value
+        raise ValidationError("존재하지 않는 이미지 url 입니다.")

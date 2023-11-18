@@ -1,6 +1,6 @@
 from pathlib import Path
 from .secret import SECRET_KEY, DATABASES
-from .settings_detail import set_logging, set_restframework, set_simplejwt
+from .settings_detail import set_logging, set_restframework, set_simplejwt, set_aws_s3
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -16,7 +16,12 @@ DEBUG = True
 if DEBUG:
     ALLOWED_HOSTS = ["backend-django", "0.0.0.0", "localhost"]
 else:
-    ALLOWED_HOSTS = ["account-book.store", "www.account-book.store", "0.0.0.0", "localhost"]
+    ALLOWED_HOSTS = [
+        "account-book.store",
+        "www.account-book.store",
+        "0.0.0.0",
+        "localhost",
+    ]
 
 # Application definition
 
@@ -29,6 +34,7 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt",
     "rest_framework_simplejwt.token_blacklist",
     "corsheaders",
+    "storages",
     # django main apps
     "django.contrib.admin",
     "django.contrib.auth",
@@ -100,3 +106,13 @@ CORS_ALLOW_CREDENTIALS = True
 SIMPLE_JWT = set_simplejwt.SIMPLE_JWT
 REST_FRAMEWORK = set_restframework.REST_FRAMEWORK
 LOGGING = set_logging.LOGGING
+
+
+# S3 Storages
+AWS_ACCESS_KEY_ID = set_aws_s3.AWS_ACCESS_KEY_ID
+AWS_SECRET_ACCESS_KEY = set_aws_s3.AWS_SECRET_ACCESS_KEY
+AWS_REGION = set_aws_s3.AWS_REGION
+
+AWS_STORAGE_BUCKET_NAME = set_aws_s3.AWS_STORAGE_BUCKET_NAME
+AWS_S3_CUSTOM_DOMAIN = '%s.s3.%s.amazonaws.com' % (AWS_STORAGE_BUCKET_NAME, AWS_REGION)
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
