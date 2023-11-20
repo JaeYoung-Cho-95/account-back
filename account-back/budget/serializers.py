@@ -7,10 +7,6 @@ from rest_framework.serializers import (
 from .models import AccountDateModel, AccountDateDetailModel, TagModel
 from django.contrib.auth import get_user_model
 
-import logging
-
-logger = logging.getLogger("A")
-
 
 class TagSerializer(ModelSerializer):
     class Meta:
@@ -48,17 +44,12 @@ class AccountDateDetailSerializer(ModelSerializer):
         fields = ["user", "date", "tag", "time", "income", "spending", "content"]
 
     def create(self, validated_data):
-        # total 값 저장
-        self.income_total += validated_data.get("income")
-        self.spend_total += validated_data.get("spending")
-
         # time string > datetime type 변환
         time = validated_data.get("time", 0)
         validated_data["time"] = f"{time}:00"
 
         # ManyToMany field tag 정보 파싱
         tag_data = validated_data.pop("tag", [])
-        logger.info(tag_data)
 
         try:
             AccountDateDetailModel.objects.get(**validated_data)

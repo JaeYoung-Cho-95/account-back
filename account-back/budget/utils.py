@@ -1,18 +1,12 @@
-from django.contrib.auth import get_user_model
 from rest_framework.exceptions import ValidationError
 from .models import AccountDateModel
 from .serializers import AccountDateSerializer
-import datetime
-import logging
 
-logger = logging.getLogger("A")
 
 
 def make_account_date_model_instance(
-    request, user_pk, income_summary=0, spend_summary=0
+    date, user_pk, income_summary=0, spend_summary=0
 ):
-    date = request.data[0].get("date")
-
     # letf money 계산을 위해 최근 db 조회
     accountdate_instance = (
         AccountDateModel.objects.filter(user=user_pk).order_by("-date").first() or False
@@ -23,7 +17,6 @@ def make_account_date_model_instance(
         leftmoney = accountdate_instance.left_money + income_summary - spend_summary
     else:
         leftmoney = 0 + income_summary - spend_summary
-
     data = {
         "user": user_pk,
         "date": date,
@@ -37,12 +30,10 @@ def make_account_date_model_instance(
         accountdate_instance = AccountDateModel.objects.get(date=date)
     except:
         accountdate_instance = None
-
+    
     accountdate_serializer = AccountDateSerializer(
         instance=accountdate_instance, data=data
     )
-
     if accountdate_serializer.is_valid():
         return accountdate_serializer.save()
-
     raise ValidationError([{'date': ['잘못된 날짜 형식입니다.']}])

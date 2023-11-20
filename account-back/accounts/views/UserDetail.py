@@ -76,9 +76,7 @@ class UserDetailView(APIView, Parsing):
                 False,
             )
 
-        if password and (
-            not check_password(password, user_instance.password)
-        ):
+        if password and (not check_password(password, user_instance.password)):
             return (
                 Response(
                     {"message": "비밀번호가 일치하지않습니다."}, status=status.HTTP_401_UNAUTHORIZED
@@ -93,5 +91,5 @@ class UserDetailView(APIView, Parsing):
                 {"message": "access token 과 유저의 정보가 일치하지 않습니다."},
                 status=status.HTTP_401_UNAUTHORIZED,
             ),
-            False
+            False,
         )
