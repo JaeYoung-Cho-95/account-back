@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
-from traitlets import default
+from datetime import date
 from .managers import UserManager
 
 # Create your models here.
@@ -18,6 +18,7 @@ class User(AbstractBaseUser, PermissionsMixin, TimeStampedModel):
     username = models.CharField(max_length=20)
     nickname = models.CharField(max_length=20, unique=True)
     profile_image = models.CharField(max_length=200, default="images/basic_profile/account_profile_0.png")
+    last_date = models.DateField(default=date.today)
     
     is_staff = models.BooleanField(default=False)
     
