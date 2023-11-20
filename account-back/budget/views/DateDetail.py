@@ -59,9 +59,11 @@ class DateDetailView(APIView):
 
         income_summary = 0
         spending_summary = 0
+
         for dt in data:
             income_summary += int(dt["income"])
             spending_summary += int(dt["spending"])
+
         make_account_date_model_instance(
             date, user_pk, income_summary, spending_summary
         )
