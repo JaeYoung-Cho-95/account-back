@@ -19,7 +19,7 @@ class DateDetailView(APIView):
         user_pk = user_instance.pk
 
         date = request.data[0]["date"]
-        account_date_instance = make_account_date_model_instance(date, user_pk)
+        account_date_instance = make_account_date_model_instance(date, user_pk, blank= True)
 
         date_pk = account_date_instance.pk
 
@@ -40,18 +40,18 @@ class DateDetailView(APIView):
             try:
                 serializer.save()
                 response_data = self.parse_serializer_to_response(serializer.data)
-                self.save_summary_accountdate_model(date, response_data, user_pk)
+                self.save_summary_account_date_model(date, response_data, user_pk)
 
                 return Response(data=response_data, status=status.HTTP_201_CREATED)
             except:
                 return Response(
-                    data=[{"message": ["이미 존재하는 데이터에 대한 post 요청입니다."]}],
+                    data=serializer.errors,
                     status=status.HTTP_400_BAD_REQUEST,
                 )
         return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @staticmethod
-    def save_summary_accountdate_model(date, data, user_pk):
+    def save_summary_account_date_model(date, data, user_pk):
         """
         make summary value in account date model.
 
