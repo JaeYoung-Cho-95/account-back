@@ -56,7 +56,7 @@ class AccountDateDetailSerializer(ModelSerializer):
         tag_data = validated_data.pop("tag", [])
         exist_flag = AccountDateDetailModel.objects.filter(**validated_data)
 
-        if len(exist_flag) >= 1:
+        if (self.context["request"].method == "POST") and (len(exist_flag) >= 1):
             raise ValidationError("유저는 이미 해당 날짜에 가계부를 작성하였습니다.")
         else:
             # detail model 생성

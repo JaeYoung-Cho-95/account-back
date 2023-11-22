@@ -33,4 +33,4 @@ class AccountDateDetailModel(models.Model):
 
 
 class TagModel(models.Model):
-    tag = models.CharField(max_length=10, blank=False)
+    tag = models.CharField(max_length=10, blank=True)

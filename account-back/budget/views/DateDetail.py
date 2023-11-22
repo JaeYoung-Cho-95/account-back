@@ -52,13 +52,14 @@ class DateDetailView(APIView):
         queryset.delete()
 
         data = self.make_data_to_optimizer(user_id, date_id)
-
+        
         serializer = AccountDateDetailSerializer(
             data=data,
             context={"request": request},
             many=True,
         )
         return self.valid_save_model(serializer, date, user_id)
+        
 
     def make_data_to_optimizer(self, user_pk, date_pk):
         """
@@ -66,6 +67,9 @@ class DateDetailView(APIView):
         """
         data = self.request.data
         
+        if "delete" in data[0].keys():
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
         for idx, _ in enumerate(data):
             data[idx]["user"] = user_pk
             data[idx]["date"] = date_pk
@@ -81,7 +85,7 @@ class DateDetailView(APIView):
         if serializer.is_valid():
             serializer.save()
             try:
-                response_data = self.parse_serializer_to_response(serializer.data)
+                response_data = self.parse_serializer_to_response(serializer.data, date)
                 self.save_summary_account_date_model(
                     date, response_data, user_pk
                 )
@@ -126,7 +130,7 @@ class DateDetailView(APIView):
         return tag_to_serializer
 
     @staticmethod
-    def parse_serializer_to_response(data):
+    def parse_serializer_to_response(data, date):
         """
         make serializer data to response data
         reverse method about parse_request_to_serializer
@@ -135,7 +139,7 @@ class DateDetailView(APIView):
         try: 
             for idx, value in enumerate(data):
                 data[idx]["tag"] = [tag_dict["tag"] for tag_dict in value["tag"]]
+                data[idx]["date"] = date
             return data
         except:
-            logger.info("3")
             raise ValidationError("tag 정보 parsing error 입니다.")
