@@ -7,6 +7,7 @@ from rest_framework import status
 from django.contrib.auth import get_user_model
 from budget.serializers import AccountDateDetailSerializer
 from budget.utils import make_account_date_model_instance
+from budget.models import AccountDateDetailModel, AccountDateModel
 
 
 class DateDetailView(APIView):
@@ -15,32 +16,67 @@ class DateDetailView(APIView):
 
     def post(self, request):
         User = get_user_model()
-        user_instance = User.objects.get(pk=request.user.pk)
-        user_pk = user_instance.pk
+        user_pk = User.objects.get(pk=request.user.pk).pk
 
         date = request.data[0]["date"]
-        account_date_instance = make_account_date_model_instance(date, user_pk, blank= True)
+        date_pk = make_account_date_model_instance(date, user_pk, blank=True).pk
 
-        date_pk = account_date_instance.pk
-
-        for idx, _ in enumerate(request.data):
-            request.data[idx]["user"] = user_pk
-            request.data[idx]["date"] = date_pk
-
-            tag_to_serializer = self.parse_request_to_serializer(request.data[idx])
-            request.data[idx]["tag"] = tag_to_serializer
+        data = self.make_data_to_optimizer(user_pk, date_pk)
 
         serializer = AccountDateDetailSerializer(
-            data=request.data,
+            data=data,
             context={"request": request},
             many=True,
         )
 
+        return self.valid_save_model(serializer, user_pk)
+
+    def put(self, request):
+        # user id 파싱
+        User = get_user_model()
+        user_id = User.objects.get(pk=request.user.pk).pk
+
+        # date 파싱
+        date = request.data["date"]
+        date_id = AccountDateModel.objects.get(user=user_id, date=date)
+
+        # 해당 날짜의 query 모두 삭제
+        queryset = AccountDateDetailModel.objects.filter(user=user_id, date=date)
+        queryset.delete()
+
+        data = self.make_data_to_optimizer(user_id, date_id)
+
+        serializer = AccountDateDetailSerializer(
+            data=data,
+            context={"request": request},
+            many=True,
+        )
+        return self.valid_save_model(serializer, user_id)
+
+    def make_data_to_optimizer(self, user_pk, date_pk):
+        """
+        Change the data to fit into Serializer.
+        """
+        data = self.request.data
+        for idx, _ in enumerate(data):
+            data[idx]["user"] = user_pk
+            data[idx]["date"] = date_pk
+
+            tag_to_serializer = self.parse_request_to_serializer(data[idx])
+            data[idx]["tag"] = tag_to_serializer
+        return data
+
+    def valid_save_model(self, serializer, user_pk):
+        """
+        serializer 유효성 검사 및 모델 저장 / 업데이트
+        """
         if serializer.is_valid():
             try:
                 serializer.save()
                 response_data = self.parse_serializer_to_response(serializer.data)
-                self.save_summary_account_date_model(date, response_data, user_pk)
+                self.save_summary_account_date_model(
+                    self.request.date, response_data, user_pk
+                )
 
                 return Response(data=response_data, status=status.HTTP_201_CREATED)
             except:
@@ -73,11 +109,6 @@ class DateDetailView(APIView):
         """
         Make tag(str) in request data To {"tag" : tag"}(dict) for serializer
 
-        Args:
-            data (dict): request.data
-
-        Returns:
-            data (dict): validated data for serializer
         """
         tag_to_serializer = []
 
@@ -93,11 +124,6 @@ class DateDetailView(APIView):
         make serializer data to response data
         reverse method about parse_request_to_serializer
 
-        Args:
-            data (dict): serializer data
-
-        Returns:
-            data (dict) : respoonse data for frontend
         """
         try:
             for idx, value in enumerate(data):
