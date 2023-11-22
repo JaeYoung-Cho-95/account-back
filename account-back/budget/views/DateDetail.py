@@ -8,6 +8,9 @@ from django.contrib.auth import get_user_model
 from budget.serializers import AccountDateDetailSerializer
 from budget.utils import make_account_date_model_instance
 from budget.models import AccountDateDetailModel, AccountDateModel
+import logging
+
+logger = logging.getLogger("A")
 
 
 class DateDetailView(APIView):
@@ -22,26 +25,30 @@ class DateDetailView(APIView):
         date_pk = make_account_date_model_instance(date, user_pk, blank=True).pk
 
         data = self.make_data_to_optimizer(user_pk, date_pk)
-
+        logger.info(data)
         serializer = AccountDateDetailSerializer(
             data=data,
             context={"request": request},
             many=True,
         )
 
-        return self.valid_save_model(serializer, user_pk)
+        return self.valid_save_model(serializer, date, user_pk)
 
     def put(self, request):
         # user id 파싱
         User = get_user_model()
         user_id = User.objects.get(pk=request.user.pk).pk
 
-        # date 파싱
-        date = request.data["date"]
-        date_id = AccountDateModel.objects.get(user=user_id, date=date)
+        # date 파싱. 0번째 date가 없으면 데이터가 없으므로 모두 삭제 요청으로 인지
+        date = request.data[0]["date"]
+
+        try:
+            date_id = AccountDateModel.objects.get(user=user_id, date=date).pk
+        except:
+            raise ValidationError("잘못된 요청입니다.")
 
         # 해당 날짜의 query 모두 삭제
-        queryset = AccountDateDetailModel.objects.filter(user=user_id, date=date)
+        queryset = AccountDateDetailModel.objects.filter(user=user_id, date=date_id)
         queryset.delete()
 
         data = self.make_data_to_optimizer(user_id, date_id)
@@ -51,13 +58,14 @@ class DateDetailView(APIView):
             context={"request": request},
             many=True,
         )
-        return self.valid_save_model(serializer, user_id)
+        return self.valid_save_model(serializer, date, user_id)
 
     def make_data_to_optimizer(self, user_pk, date_pk):
         """
         Change the data to fit into Serializer.
         """
         data = self.request.data
+        
         for idx, _ in enumerate(data):
             data[idx]["user"] = user_pk
             data[idx]["date"] = date_pk
@@ -66,20 +74,20 @@ class DateDetailView(APIView):
             data[idx]["tag"] = tag_to_serializer
         return data
 
-    def valid_save_model(self, serializer, user_pk):
+    def valid_save_model(self, serializer, date, user_pk):
         """
         serializer 유효성 검사 및 모델 저장 / 업데이트
         """
         if serializer.is_valid():
+            serializer.save()
             try:
-                serializer.save()
                 response_data = self.parse_serializer_to_response(serializer.data)
                 self.save_summary_account_date_model(
-                    self.request.date, response_data, user_pk
+                    date, response_data, user_pk
                 )
-
                 return Response(data=response_data, status=status.HTTP_201_CREATED)
             except:
+
                 return Response(
                     data=serializer.errors,
                     status=status.HTTP_400_BAD_REQUEST,
@@ -92,10 +100,8 @@ class DateDetailView(APIView):
         make summary value in account date model.
 
         """
-
         income_summary = 0
         spending_summary = 0
-
         for dt in data:
             income_summary += int(dt["income"])
             spending_summary += int(dt["spending"])
@@ -103,6 +109,7 @@ class DateDetailView(APIView):
         make_account_date_model_instance(
             date, user_pk, income_summary, spending_summary
         )
+
 
     @staticmethod
     def parse_request_to_serializer(data):
@@ -125,9 +132,10 @@ class DateDetailView(APIView):
         reverse method about parse_request_to_serializer
 
         """
-        try:
+        try: 
             for idx, value in enumerate(data):
                 data[idx]["tag"] = [tag_dict["tag"] for tag_dict in value["tag"]]
             return data
         except:
+            logger.info("3")
             raise ValidationError("tag 정보 parsing error 입니다.")
