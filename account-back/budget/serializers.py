@@ -38,8 +38,8 @@ class AccountDateDetailSerializer(ModelSerializer):
     tag = TagSerializer(many=True)
     time = CharField(max_length=2)
 
-    def __init__(self, **kwargs):
-        super(AccountDateDetailSerializer, self).__init__(**kwargs)
+    def __init__(self, *args, **kwargs):
+        super(AccountDateDetailSerializer, self).__init__(*args, **kwargs)
         self.spend_total = 0
         self.income_total = 0
 

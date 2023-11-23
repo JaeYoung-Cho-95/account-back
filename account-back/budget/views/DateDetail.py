@@ -1,6 +1,7 @@
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.templatetags.rest_framework import data
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.views import APIView
 from rest_framework import status
@@ -17,6 +18,29 @@ class DateDetailView(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
+    def get(self, request):
+        date = request.query_params.get("date")
+    
+        try:
+            date_pk = AccountDateModel.objects.get(user=request.user.pk ,date=date).pk
+        except:
+            return Response(
+                data={"message": "이 유저는 해당 날짜에 작성한 가계부가 조회되지 않습니다."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        qs = AccountDateDetailModel.objects.filter(user=request.user.pk, date=date_pk).order_by("time")
+        if len(qs) == 0:
+            return Response(
+                data={"message": "이 유저는 해당 날짜에 작성한 가계부가 조회되지 않습니다."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        serializer = AccountDateDetailSerializer(qs, many=True)
+        response_data = self.parse_serializer_to_response(serializer.data, date)
+
+        return Response(data=response_data, status=status.HTTP_200_OK)
+
     def post(self, request):
         User = get_user_model()
         user_pk = User.objects.get(pk=request.user.pk).pk
@@ -25,7 +49,7 @@ class DateDetailView(APIView):
         date_pk = make_account_date_model_instance(date, user_pk, blank=True).pk
 
         data = self.make_data_to_optimizer(user_pk, date_pk)
-        logger.info(data)
+
         serializer = AccountDateDetailSerializer(
             data=data,
             context={"request": request},
@@ -52,21 +76,20 @@ class DateDetailView(APIView):
         queryset.delete()
 
         data = self.make_data_to_optimizer(user_id, date_id)
-        
+
         serializer = AccountDateDetailSerializer(
             data=data,
             context={"request": request},
             many=True,
         )
         return self.valid_save_model(serializer, date, user_id)
-        
 
     def make_data_to_optimizer(self, user_pk, date_pk):
         """
         Change the data to fit into Serializer.
         """
         data = self.request.data
-        
+
         if "delete" in data[0].keys():
             return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -86,12 +109,9 @@ class DateDetailView(APIView):
             serializer.save()
             try:
                 response_data = self.parse_serializer_to_response(serializer.data, date)
-                self.save_summary_account_date_model(
-                    date, response_data, user_pk
-                )
+                self.save_summary_account_date_model(date, response_data, user_pk)
                 return Response(data=response_data, status=status.HTTP_201_CREATED)
             except:
-
                 return Response(
                     data=serializer.errors,
                     status=status.HTTP_400_BAD_REQUEST,
@@ -114,7 +134,6 @@ class DateDetailView(APIView):
             date, user_pk, income_summary, spending_summary
         )
 
-
     @staticmethod
     def parse_request_to_serializer(data):
         """
@@ -136,8 +155,11 @@ class DateDetailView(APIView):
         reverse method about parse_request_to_serializer
 
         """
-        try: 
+        try:
             for idx, value in enumerate(data):
+                if "user" in data[idx].keys():
+                    del data[idx]["user"]
+                    
                 data[idx]["tag"] = [tag_dict["tag"] for tag_dict in value["tag"]]
                 data[idx]["date"] = date
             return data

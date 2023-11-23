@@ -23,7 +23,7 @@ class DateSummaryView(APIView):
             )
 
         request_date_year, request_date_month = request.query_params.get("date").split("-")
-        qs = qs.filter(date__year=request_date_year, date__month=request_date_month)
+        qs = qs.filter(date__year=request_date_year, date__month=request_date_month).order_by("date")
         if not qs:
             return Response(
                 data={"message": "요청된 날짜에 대한 data가 존재하지 않습니다."},
@@ -31,5 +31,16 @@ class DateSummaryView(APIView):
             )
 
         serializer = AccountDateSerializer(qs, many=True)
+        response_data = self.parse_serializer_to_response(serializer.data)
+        return Response(data=response_data, status=status.HTTP_200_OK)
+    
+    @staticmethod
+    def parse_serializer_to_response(data):
+        """
+        make serializer data to response data
 
-        return Response(data=serializer.data, status=status.HTTP_200_OK)
+        """
+        for idx, value in enumerate(data):
+            if "user" in data[idx].keys():
+                del data[idx]["user"]
+        return data
