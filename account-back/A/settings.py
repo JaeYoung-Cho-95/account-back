@@ -29,6 +29,8 @@ INSTALLED_APPS = [
     # loacl apps
     "accounts",
     "budget",
+    "chart",
+    
     # django third party apps
     "rest_framework",
     "rest_framework_simplejwt",
