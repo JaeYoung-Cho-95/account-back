@@ -5,3 +5,4 @@ class DateGetSerializer(ModelSerializer):
     class Meta:
         model = AccountDateModel
         fields = ["date","left_money"]
+    
