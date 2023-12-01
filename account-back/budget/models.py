@@ -34,3 +34,11 @@ class AccountDateDetailModel(models.Model):
 
 class TagModel(models.Model):
     tag = models.CharField(max_length=10, blank=True)
+
+
+class TagSummaryModel(models.Model):
+    tag_id = models.ForeignKey("TagModel", on_delete=models.CASCADE)
+    user_id = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    date = models.DateField(blank=False)
+    spending = models.DecimalField(max_digits=11, decimal_places=0, default=0)
+    income = models.DecimalField(max_digits=11, decimal_places=0, default=0)

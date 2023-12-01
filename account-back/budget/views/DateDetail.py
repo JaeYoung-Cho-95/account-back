@@ -1,14 +1,20 @@
+import asyncio
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.templatetags.rest_framework import data
+from rest_framework.utils import serializer_helpers
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.views import APIView
 from rest_framework import status
 from django.contrib.auth import get_user_model
-from budget.serializers import AccountDateDetailSerializer
+from budget.serializers import AccountDateDetailSerializer, TagSummarySerializer
 from budget.utils import make_account_date_model_instance
-from budget.models import AccountDateDetailModel, AccountDateModel
+from budget.models import (
+    AccountDateDetailModel,
+    AccountDateModel,
+    TagModel,
+    TagSummaryModel,
+)
 import logging
 
 logger = logging.getLogger("A")
@@ -20,16 +26,18 @@ class DateDetailView(APIView):
 
     def get(self, request):
         date = request.query_params.get("date")
-    
+
         try:
-            date_pk = AccountDateModel.objects.get(user=request.user.pk ,date=date).pk
+            date_pk = AccountDateModel.objects.get(user=request.user.pk, date=date).pk
         except:
             return Response(
                 data={"message": "이 유저는 해당 날짜에 작성한 가계부가 조회되지 않습니다."},
                 status=status.HTTP_404_NOT_FOUND,
             )
 
-        qs = AccountDateDetailModel.objects.filter(user=request.user.pk, date=date_pk).order_by("time")
+        qs = AccountDateDetailModel.objects.filter(
+            user=request.user.pk, date=date_pk
+        ).order_by("time")
         if len(qs) == 0:
             return Response(
                 data={"message": "이 유저는 해당 날짜에 작성한 가계부가 조회되지 않습니다."},
@@ -63,7 +71,7 @@ class DateDetailView(APIView):
         User = get_user_model()
         user_id = User.objects.get(pk=request.user.pk).pk
 
-        # date 파싱. 0번째 date가 없으면 데이터가 없으므로 모두 삭제 요청으로 인지
+        # date 파싱
         date = request.data[0]["date"]
 
         try:
@@ -71,8 +79,14 @@ class DateDetailView(APIView):
         except:
             raise ValidationError("잘못된 요청입니다.")
 
-        # 해당 날짜의 query 모두 삭제
+        # 해당 날짜의 queryset 으로 TagSummary 값 삭제 및 queryset 자체 삭제
         queryset = AccountDateDetailModel.objects.filter(user=user_id, date=date_id)
+        del_serializer= AccountDateDetailSerializer(queryset, many=True)
+        
+        # tag_summary 에서 기존 query set 에 값만큼 빼주기
+        self.minus_tag_summary(del_serializer.data,user_id,date)
+        
+        # 기존의 query set 삭제
         queryset.delete()
 
         data = self.make_data_to_optimizer(user_id, date_id)
@@ -109,7 +123,8 @@ class DateDetailView(APIView):
             serializer.save()
             try:
                 response_data = self.parse_serializer_to_response(serializer.data, date)
-                self.save_summary_account_date_model(date, response_data, user_pk)
+                self.save_summary_account_date_model(response_data, user_pk, date)
+                self.save_summary_tag_model(response_data, user_pk, date)
                 return Response(data=response_data, status=status.HTTP_201_CREATED)
             except:
                 return Response(
@@ -119,7 +134,45 @@ class DateDetailView(APIView):
         return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @staticmethod
-    def save_summary_account_date_model(date, data, user_pk):
+    def minus_tag_summary(data, user_pk, date):
+        for i in data:
+            for tag in i["tag"]:
+                tag_name = tag['tag']
+                tag_pk = TagModel.objects.get(tag=tag_name).pk
+                instance = TagSummaryModel.objects.filter(tag_id=tag_pk, user_id=user_pk, date=date)[0]
+                instance.spending -= int(i["spending"])
+                instance.income -= int(i["income"])
+                instance.save()
+    
+    @staticmethod
+    def save_summary_tag_model(data, user_pk, date):
+        for i in data:
+            for tag_name in i["tag"]:
+                try:
+                    tag_pk = TagModel.objects.get(tag=tag_name).pk
+                    instance = TagSummaryModel.objects.filter(tag_id=tag_pk, user_id=user_pk, date=date)[0]
+                    instance.spending += int(i["spending"])
+                    instance.income += int(i["income"])
+                    instance.save()
+                    
+                except:
+                    input_data = {
+                        "tag_id": tag_pk,
+                        "user_id": user_pk,
+                        "date": date,
+                        "spending": int(i["spending"]),
+                        "income": int(i["income"]),
+                    }
+                    tag_summary_serializer = TagSummarySerializer(data=input_data)
+                    if tag_summary_serializer.is_valid():
+                        tag_summary_serializer.save()
+                    else:
+                        raise ValidationError(
+                            tag_summary_serializer.error_messages
+                        )
+
+    @staticmethod
+    def save_summary_account_date_model(data, user_pk, date):
         """
         make summary value in account date model.
 
@@ -159,7 +212,7 @@ class DateDetailView(APIView):
             for idx, value in enumerate(data):
                 if "user" in data[idx].keys():
                     del data[idx]["user"]
-                    
+
                 data[idx]["tag"] = [tag_dict["tag"] for tag_dict in value["tag"]]
                 data[idx]["date"] = date
             return data

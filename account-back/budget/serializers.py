@@ -5,7 +5,7 @@ from rest_framework.serializers import (
     PrimaryKeyRelatedField,
 )
 from rest_framework.exceptions import ValidationError
-from .models import AccountDateModel, AccountDateDetailModel, TagModel
+from .models import AccountDateModel, AccountDateDetailModel, TagModel, TagSummaryModel
 from django.contrib.auth import get_user_model
 import logging
 
@@ -77,3 +77,14 @@ class AccountDateDetailSerializer(ModelSerializer):
             raise ValidationError("시간은 0 ~ 24 사이의 숫자만 선택이 가능합니다.")
 
         return value
+
+
+class TagSummarySerializer(ModelSerializer):
+    tag_id = PrimaryKeyRelatedField(queryset= TagModel.objects.all())
+    user_id = PrimaryKeyRelatedField(queryset= get_user_model().objects.all())
+    
+    class Meta:
+        model = TagSummaryModel
+        fields = "__all__"
+    
+    
