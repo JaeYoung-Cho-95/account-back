@@ -1,5 +1,6 @@
 from datetime import datetime
 from rest_framework import status
+from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from chart.serializers import TagGetSerializer
@@ -19,10 +20,13 @@ class TagTopTenView(APIView):
         st_month, ed_month = self.make_datetime_dataset(
             request.query_params.get("st_month"), request.query_params.get("ed_month")
         )
+        self.valid_month_gap(st_month,ed_month)
+        
         user_id = request.user.pk
         query_set = TagSummaryModel.objects.filter(
             user_id=user_id, date__gte=st_month, date__lte=ed_month
         )
+        
         try:
             serializer = TagGetSerializer(instance=query_set, many=True)
             return_data = self.make_response_data(serializer.data)
@@ -63,6 +67,16 @@ class TagTopTenView(APIView):
         
         return return_data
 
+    @staticmethod
+    def valid_month_gap(st_date, ed_date):
+        date_gap = ed_date - st_date
+        
+        if date_gap.days < 0:
+            raise ValidationError("그래프의 시작날짜가 종료날짜보다 큽니다.")
+        
+        if date_gap.days > 365:
+            raise ValidationError("그래프는 총 12개월 간격까지 보여줄 수 있습니다.")
+    
     @staticmethod
     def make_datetime_dataset(st_month, ed_month):
         date_format = "%Y-%m"
