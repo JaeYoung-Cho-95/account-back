@@ -73,7 +73,6 @@ class DateDetailView(APIView):
 
         # date 파싱
         date = request.data[0]["date"]
-
         try:
             date_id = AccountDateModel.objects.get(user=user_id, date=date).pk
         except:
