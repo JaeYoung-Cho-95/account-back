@@ -59,12 +59,12 @@ class monthSummary(APIView):
             for i in query_set:
                 response_data[f"{st_year}-{st_month}"] += int(i.left_money)
 
+            if (st_year == ed_year) and (st_month == ed_month):
+                break
+            
             st_month += 1
             if st_month >= 13:
                 st_month = 1
                 st_year += 1
-
-            if (st_year == ed_year) and (st_month > ed_month):
-                break
             
         return response_data
