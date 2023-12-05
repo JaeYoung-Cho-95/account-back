@@ -79,10 +79,10 @@ class TagTopTenView(APIView):
         income_keys = list(return_data["income_top_ten"].keys())
         
         for i in spending_keys:
-            return_data["spending_top_ten"][i] = str(round(return_data["spending_top_ten"][i] / sum_spending * 100,2)) + "%"
+            return_data["spending_top_ten"][i] = str(round(return_data["spending_top_ten"][i] / sum_spending * 100,2))
         
         for i in income_keys:
-            return_data["income_top_ten"][i] = str(round(return_data["income_top_ten"][i] / sum_income * 100,2)) + "%"
+            return_data["income_top_ten"][i] = str(round(return_data["income_top_ten"][i] / sum_income * 100,2))
             
         return return_data
 
