@@ -1,3 +1,4 @@
+from urllib import response
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
@@ -46,18 +47,20 @@ class monthSummary(APIView):
         st_year, st_month = list(map(int, st_date.split("-")))
         ed_year, ed_month = list(map(int, ed_date.split("-")))
 
-        response_data = {}
+        response_data = []
         while True:
             query_set = AccountDateModel.objects.filter(
                 user=user_pk,
                 date__year=str(st_year),
                 date__month=str(st_month),
             )
-
-            response_data[f"{st_year}-{st_month}"] = 0
-
+            
+            response_data.append({})
+            response_data[-1]["date"] = f"{st_year}-{st_month}"
+            
+            response_data[-1]["left_money"] = 0
             for i in query_set:
-                response_data[f"{st_year}-{st_month}"] += int(i.left_money)
+                response_data[-1]["left_money"] += int(i.left_money)
 
             if (st_year == ed_year) and (st_month == ed_month):
                 break
