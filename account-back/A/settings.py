@@ -30,6 +30,7 @@ INSTALLED_APPS = [
     "accounts",
     "budget",
     "chart",
+    "crawling",
     
     # django third party apps
     "rest_framework",
@@ -37,6 +38,7 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt.token_blacklist",
     "corsheaders",
     "storages",
+    
     # django main apps
     "django.contrib.admin",
     "django.contrib.auth",
