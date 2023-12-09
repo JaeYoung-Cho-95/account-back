@@ -43,7 +43,7 @@ class EconomicCrawling(crawling_news):
                     data[-1]["img_url"] = None
             else:
                 data.pop()
-
+                
         return data
 
 

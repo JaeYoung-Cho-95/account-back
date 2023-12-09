@@ -4,5 +4,5 @@ from django.db import models
 class NewsModel(models.Model):
     title = models.TextField(blank=False)
     content = models.TextField(blank=False)
-    img_url = models.TextField(default=None)
+    img_url = models.TextField(default=None, null=True)
     news_url = models.TextField(default=None)

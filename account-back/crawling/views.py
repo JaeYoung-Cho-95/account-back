@@ -8,7 +8,7 @@ from crawling.models import NewsModel
 from crawling.serializers import NewsSerializer
 from logging import getLogger
 from rest_framework.pagination import PageNumberPagination
-
+import os
 
 logger = getLogger("A")
 
@@ -24,13 +24,14 @@ class ReservationCheck(APIView):
             crawling_url="https://www.econovill.com/news/articleList.html?sc_section_code=S1N32&view_type=sm",
         )
         eco_crawling.save()
-        
         money_crawling = money_today.MoneyCrawling(
             news="money",
             homepage="",
             crawling_url="https://news.mt.co.kr/newsList.html?pDepth1=bank&pDepth2=Btotal",
         )
         money_crawling.save()
+        
+        os.system("aws s3 sync /usr/src/account-back/images s3://accountbookbucket/images")
         return Response(status=status.HTTP_302_FOUND)
 
 class StandardResultsSetPagination(PageNumberPagination):
@@ -47,6 +48,10 @@ class NewsAPI(APIView):
         
         if page:
             serializer = NewsSerializer(page, many=True)
+            for idx in range(len(serializer.data)):
+                if not serializer.data[idx]["img_url"]:
+                    continue
+                serializer.data[idx]["img_url"] = serializer.data[idx]["img_url"][21:]
             return Response(serializer.data)
         
         serializer = NewsSerializer(queryset, many=True)

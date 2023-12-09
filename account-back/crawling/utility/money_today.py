@@ -17,12 +17,15 @@ class MoneyCrawling(crawling_news):
             bs = BeautifulSoup(response.text, "html.parser")
             li_tags = bs.select("div.content > ul > li.bundle")
             data = self.make_data(li_tags=li_tags)
+            
             NS = NewsSerializer(data=data, many=True)
             if NS.is_valid():
+                logger.info(f"Money NS.data : {NS.data}")
                 NS.save()
-            return NS.data
+                return NS.data
+            logger.info(NS.errors)
         else:
-            logger.info("6")
+            
             return {"message": "해당 홈페이지에 정상적으로 접속하지 못했습니다"}
 
     def make_data(self, li_tags):
@@ -37,6 +40,7 @@ class MoneyCrawling(crawling_news):
                 r"[\n\t]", "", li_bs.find("p", class_="txt").text
             )
 
+
             if self.check_models(data[-1]):
                 if li_bs.find("a").find("img"):
                     img_path = self.save_image(li_bs.find("a").find("img").get("src"), save_img_path)
@@ -45,6 +49,7 @@ class MoneyCrawling(crawling_news):
                     data[-1]["img_url"] = None
             else:
                 data.pop()
+        
         return data
 
 
