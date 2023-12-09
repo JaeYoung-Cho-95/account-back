@@ -4,8 +4,6 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 from crawling.utility.crawling_main import crawling_news
 from bs4 import BeautifulSoup
 from crawling.serializers import NewsSerializer
-from logging import getLogger
-logger = getLogger("A")
 
 class EconomicCrawling(crawling_news):
     def save(self):

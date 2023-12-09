@@ -4,9 +4,6 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 from crawling.utility.crawling_main import crawling_news
 from bs4 import BeautifulSoup
 from crawling.serializers import NewsSerializer
-from logging import getLogger
-
-logger = getLogger("A")
 
 
 class MoneyCrawling(crawling_news):
@@ -20,10 +17,8 @@ class MoneyCrawling(crawling_news):
             
             NS = NewsSerializer(data=data, many=True)
             if NS.is_valid():
-                logger.info(f"Money NS.data : {NS.data}")
                 NS.save()
                 return NS.data
-            logger.info(NS.errors)
         else:
             
             return {"message": "해당 홈페이지에 정상적으로 접속하지 못했습니다"}

@@ -1,9 +1,7 @@
 import requests, os, datetime
 from crawling.models import NewsModel
 from A.settings_detail.set_aws_s3 import AWS_STORAGE_BUCKET_NAME
-from logging import getLogger
 import os
-logger = getLogger("A")
 import boto3
 
 class crawling_news:
@@ -34,12 +32,6 @@ class crawling_news:
         response = requests.get(image_url)
 
         if response.status_code == 200:
-            # directory = os.path.dirname(save_path)
-            # try:
-            #     os.makedirs(directory)
-            # except:
-            #     pass
-            
             with open(save_path, "wb") as file:    
                 file.write(response.content)
             return save_path
