@@ -1,4 +1,8 @@
-import requests, os, re, datetime
+import requests, os, datetime
+from crawling.models import NewsModel
+from logging import getLogger
+logger = getLogger("A")
+
 
 
 class crawling_news:
@@ -34,8 +38,16 @@ class crawling_news:
             path_list = os.listdir(path)
 
         path_list = sorted(path_list, key=lambda x: int(x.split(".")[0]))
-        
+
         if not path_list:
             return path + "1.jpg"
         else:
             return path + str(int(path_list[-1].split(".")[0]) + 1) + ".jpg"
+
+    def check_models(self, data):
+        try:
+            NewsModel.objects.get(title=data["title"])
+            return False
+        except:
+            return True
+            
