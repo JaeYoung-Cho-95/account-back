@@ -2,7 +2,7 @@ from background_task import background
 from crawling.utility import economic_review, money_today
 
 
-@background(schedule=60)
+@background(schedule=86400)
 def save_economic_news():
     eco_crawling = economic_review.EconomicCrawling(
         news="eco",
@@ -12,7 +12,7 @@ def save_economic_news():
     eco_crawling.save()
 
 
-@background(schedule=60)
+@background(schedule=86400)
 def save_money_news():
     money_crawling = money_today.MoneyCrawling(
         news="money",
